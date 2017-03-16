@@ -1,7 +1,7 @@
 variable "keypair" {
     type                    = "string"
-    description             = "AWS SSH keypair to use to connect to instances"
-    default                 = "aws_rsa"
+    description             = "SSH keypair to use to connect to instances"
+    default                 = "itx_rsa"
 }
 
 variable "flavor" {

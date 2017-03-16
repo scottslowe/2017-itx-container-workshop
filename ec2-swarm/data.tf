@@ -1,13 +1,10 @@
-data "aws_ami" "atomic_ami" {
+data "aws_ami" "coreos_ami" {
     filter {
         name                = "name"
-        values              = ["*CentOS Atomic*1701*"]
+        values              = ["*CoreOS-stable-1298.6.0*"]
     }
-}
-
-data "aws_ami" "centos_ami" {
     filter {
-        name                = "name"
-        values              = ["*CentOS 7.3.1611*"]
+        name                = "virtualization-type"
+        values              = ["hvm"]
     }
 }

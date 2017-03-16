@@ -64,11 +64,11 @@ resource "aws_security_group" "swarm_web_sg" {
     }
 }
 
-# Create a security group to allow inbound SSH (for bastion only)
-resource "aws_security_group" "bastion_sg" {
+# Create a security group to allow inbound SSH (for manager only)
+resource "aws_security_group" "manager_sg" {
     vpc_id                  = "${aws_vpc.ec2_swarm_vpc.id}"
-    name                    = "bastion-sg"
-    description             = "Security group for SSH bastion host"
+    name                    = "manager-sg"
+    description             = "Security group for Swarm manager"
     ingress {
         from_port           = "22"
         to_port             = "22"
