@@ -1,0 +1,31 @@
+- name: "Initialize Docker Swarm manager"
+  hosts: tag_role_manager
+  gather_facts: yes
+  tasks:
+    - command: "docker swarm init --advertise-addr {{ ansible_default_ipv4.address }}"
+    - command: "docker swarm join-token -q worker"
+      register: swarm_token
+    - set_fact: swarmtoken="{{ swarm_token.stdout }}"
+  tags:
+    - manager
+
+- name: "Disable live restore on worker nodes"
+  hosts: tag_role_worker
+  gather_facts: yes
+  tasks:
+    - lineinfile:
+        dest: "/etc/docker/daemon.json"
+        regexp: "live-restore: true"
+        line: "live-restore: false"
+    - service:
+        name: "docker.service"
+        state: "restarted"
+  tags:
+    - worker
+
+- name: "Join worker nodes to Swarm cluster"
+  hosts: tag_role_worker
+  tasks:
+    - command: "docker swarm join --advertise-addr {{ ansible_default_ipv4.address }} --token {{ hostvars[groups['tag_role_manager'][0]].swarmtoken }} {{ hostvars[groups['tag_role_manager'][0]].ansible_default_ipv4.address }}:2377"
+  tags:
+    - worker
