@@ -1,7 +1,8 @@
-data "aws_ami" "coreos_ami" {
+data "aws_ami" "swarm_ami" {
+    most_recent             = true
     filter {
         name                = "name"
-        values              = ["*CoreOS-stable-1298.6.0*"]
+        values              = ["*CentOS Atomic*"]
     }
     filter {
         name                = "virtualization-type"

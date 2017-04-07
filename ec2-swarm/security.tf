@@ -1,8 +1,8 @@
 # Create a security group to allow Swarm and web traffic
-resource "aws_security_group" "swarm_web_sg" {
+resource "aws_security_group" "swarm_sg" {
     vpc_id                  = "${aws_vpc.ec2_swarm_vpc.id}"
-    name                    = "swarm-web-sg"
-    description             = "Security group for Swarm and web traffic"
+    name                    = "swarm-sg"
+    description             = "Security group for Swarm traffic"
     ingress {
         from_port           = "2375"
         to_port             = "2377"
@@ -37,18 +37,6 @@ resource "aws_security_group" "swarm_web_sg" {
         from_port           = "22"
         to_port             = "22"
         protocol            = "tcp"
-        cidr_blocks         = ["${aws_vpc.ec2_swarm_vpc.cidr_block}"]
-    }
-    ingress {
-        from_port           = "80"
-        to_port             = "80"
-        protocol            = "tcp"
-        cidr_blocks         = ["0.0.0.0/0"]
-    }
-    ingress {
-        from_port           = "443"
-        to_port             = "443"
-        protocol            = "tcp"
         cidr_blocks         = ["0.0.0.0/0"]
     }
     egress {
@@ -65,17 +53,23 @@ resource "aws_security_group" "swarm_web_sg" {
 }
 
 # Create a security group to allow inbound SSH (for manager only)
-resource "aws_security_group" "manager_sg" {
+resource "aws_security_group" "web_sg" {
     vpc_id                  = "${aws_vpc.ec2_swarm_vpc.id}"
-    name                    = "manager-sg"
-    description             = "Security group for Swarm manager"
+    name                    = "web-sg"
+    description             = "Security group for web traffic"
     ingress {
-        from_port           = "22"
-        to_port             = "22"
+        from_port           = "80"
+        to_port             = "80"
         protocol            = "tcp"
         cidr_blocks         = ["0.0.0.0/0"]
     }
-     egress {
+    ingress {
+        from_port           = "443"
+        to_port             = "443"
+        protocol            = "tcp"
+        cidr_blocks         = ["0.0.0.0/0"]
+    }
+    egress {
         from_port           = "0"
         to_port             = "0"
         protocol            = "-1"

@@ -9,3 +9,9 @@ variable "flavor" {
     description             = "AWS type to use when creating instances"
     default                 = "t2.micro"
 }
+
+variable "user_region" {
+    type                    = "string"
+    description             = "AWS region to use by default"
+    default                 = "us-west-2"
+}
