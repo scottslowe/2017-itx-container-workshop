@@ -10,6 +10,7 @@ resource "aws_instance" "manager" {
         tool                = "terraform"
         demo                = "ec2-swarm"
         area                = "instances"
+        role                = "manager"
     }
 }
 
@@ -27,5 +28,6 @@ resource "aws_instance" "worker" {
         tool                = "terraform"
         demo                = "ec2-swarm"
         area                = "instances"
+        role                = "worker"
     }
 }
