@@ -7,3 +7,5 @@
 .vagrant
 *.tfstate
 *.tfstate.backup
+.terraform/
+known_hosts
