@@ -1,3 +1,20 @@
+- name: "Disable live restore on all nodes"
+  hosts: "us-west-2"
+  gather_facts: yes
+  tasks:
+    - lineinfile:
+        dest: "/etc/docker/daemon.json"
+        regexp: '^(    "live-restore"): true'
+        line: '\1: false'
+        backrefs: yes
+    - service:
+        name: "docker.service"
+        state: "restarted"
+  tags:
+    - manager
+    - worker
+    - preconfig
+
 - name: "Initialize Docker Swarm manager"
   hosts: tag_role_manager
   gather_facts: yes
@@ -8,20 +25,6 @@
     - set_fact: swarmtoken="{{ swarm_token.stdout }}"
   tags:
     - manager
-
-- name: "Disable live restore on worker nodes"
-  hosts: tag_role_worker
-  gather_facts: yes
-  tasks:
-    - lineinfile:
-        dest: "/etc/docker/daemon.json"
-        regexp: "live-restore: true"
-        line: "live-restore: false"
-    - service:
-        name: "docker.service"
-        state: "restarted"
-  tags:
-    - worker
 
 - name: "Join worker nodes to Swarm cluster"
   hosts: tag_role_worker
