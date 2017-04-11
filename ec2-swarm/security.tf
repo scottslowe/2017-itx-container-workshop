@@ -39,33 +39,15 @@ resource "aws_security_group" "swarm_sg" {
         protocol            = "tcp"
         cidr_blocks         = ["0.0.0.0/0"]
     }
-    egress {
-        from_port           = "0"
-        to_port             = "0"
-        protocol            = "-1"
-        cidr_blocks         = ["0.0.0.0/0"]
-    }
-    tags {
-        tool                = "terraform"
-        demo                = "ec2-swarm"
-        area                = "security"
-    }
-}
-
-# Create a security group to allow inbound SSH (for manager only)
-resource "aws_security_group" "web_sg" {
-    vpc_id                  = "${aws_vpc.ec2_swarm_vpc.id}"
-    name                    = "web-sg"
-    description             = "Security group for web traffic"
     ingress {
-        from_port           = "80"
-        to_port             = "80"
+        from_port           = "5000"
+        to_port             = "5001"
         protocol            = "tcp"
         cidr_blocks         = ["0.0.0.0/0"]
     }
     ingress {
-        from_port           = "443"
-        to_port             = "443"
+        from_port           = "8080"
+        to_port             = "8080"
         protocol            = "tcp"
         cidr_blocks         = ["0.0.0.0/0"]
     }
