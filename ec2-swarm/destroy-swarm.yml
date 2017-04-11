@@ -1,5 +1,8 @@
-- name: "Leave Swarm cluster"
-  hosts: "us-west-2"
-  gather_facts: yes
+---
+- hosts: "us-west-2"
+  become: "yes"
+  remote_user: "ubuntu"
+
   tasks:
-    - command: "docker swarm leave --force"
+  - name: "Leave Swarm cluster"
+    command: "docker swarm leave --force"

@@ -4,7 +4,13 @@ variable "keypair" {
     default                 = "itx_rsa"
 }
 
-variable "flavor" {
+variable "mgr_flavor" {
+    type                    = "string"
+    description             = "AWS type to use when creating instances"
+    default                 = "t2.small"
+}
+
+variable "wkr_flavor" {
     type                    = "string"
     description             = "AWS type to use when creating instances"
     default                 = "t2.micro"
