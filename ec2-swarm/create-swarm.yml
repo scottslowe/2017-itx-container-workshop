@@ -56,6 +56,11 @@
   - name: "Establish Swarm join token as a host fact"
     set_fact: swarmtoken="{{ swarm_token.stdout }}"
 
+  - name: "Download Docker Compose file for stack"
+    get_url:
+      url: "https://github.com/lowescott/2017-itx-container-workshop/raw/master/docker-stack.yml"
+      dest: "/home/ubuntu/"
+
 - hosts: "tag_role_worker"
   become: "yes"
   remote_user: "ubuntu"
