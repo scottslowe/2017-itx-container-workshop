@@ -1,0 +1,22 @@
+version: "2"
+
+services:
+  wordpress:
+    image: wordpress:php7.1-apache
+    ports:
+      - "8080:80"
+    links:
+      - dbcluster
+    environment:
+      WORDPRESS_DB_HOST: "dbcluster"
+      WORDPRESS_DB_NAME: "wordpress"
+      WORDPRESS_DB_USER: "wp"
+      WORDPRESS_DB_PASSWORD: "changemetoo"
+  dbcluster:
+    image: toughiq/mariadb-cluster
+    environment:
+      DB_SERVICE_NAME: dbcluster 
+      MYSQL_ROOT_PASSWORD: changeme 
+      MYSQL_DATABASE: wordpress 
+      MYSQL_USER: wp 
+      MYSQL_PASSWORD: changemetoo 
