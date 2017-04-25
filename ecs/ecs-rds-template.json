@@ -1,0 +1,230 @@
+{
+    "AWSTemplateFormatVersion": "2010-09-09",
+    "Parameters": {
+        "AmazonMachineImageId": {
+            "Type": "AWS::EC2::Image::Id",
+            "Description": "Specify an AMI ID to use when launching instances",
+            "Default": "ami-62d35c02"
+        },
+        "KeyName": {
+            "Type": "AWS::EC2::KeyPair::KeyName",
+            "Description": "Enter the name of an existing EC2 keypair to use for SSH access",
+            "Default": "itx_rsa"
+        },
+        "InstanceType": {
+            "Type": "String",
+            "Description": "Specify the EC2 instance type to use",
+            "Default": "t2.medium",
+            "AllowedValues": [
+                "t2.micro",
+                "t2.small",
+                "t2.medium",
+                "t2.large"
+            ],
+            "ConstraintDescription": "Please use a valid instance type."
+        },
+        "DesiredCapacity": {
+            "Type": "Number",
+            "Description": "Enter the number of instances to launch",
+            "Default": "3"
+        }
+    },
+    "Resources": {
+        "EcsDemoVpc": {
+            "Type": "AWS::EC2::VPC",
+            "Properties": {
+                "CidrBlock": "10.0.0.0/16",
+                "Tags": [
+                    { "Key": "tool", "Value": "cloudformation" },
+                    { "Key": "demo", "Value": "ecs" }
+                ]
+            }
+        },
+        "EcsDemoSubnet": {
+            "Type": "AWS::EC2::Subnet",
+            "DependsOn": [ "EcsDemoVpc" ],
+            "Properties": {
+                "VpcId": { "Ref": "EcsDemoVpc" },
+                "MapPublicIpOnLaunch": "true",
+                "CidrBlock": "10.0.1.0/24",
+                "Tags": [
+                    { "Key": "tool", "Value": "cloudformation" },
+                    { "Key": "demo", "Value": "ecs" }
+                ]
+            }
+        },
+        "EcsDemoSecurityGroup": {
+            "Type": "AWS::EC2::SecurityGroup",
+            "DependsOn": [ "EcsDemoVpc" ],
+            "Properties": {
+                "GroupDescription": "Security group for ECS demo",
+                "VpcId": { "Ref": "EcsDemoVpc" },
+                "Tags": [
+                    { "Key": "tool", "Value": "cloudformation" },
+                    { "Key": "demo", "Value": "ecs" }
+                ]
+            }
+        },
+        "EcsDemoSecGrpSSHInbound": {
+            "Type": "AWS::EC2::SecurityGroupIngress",
+            "DependsOn": [ "EcsDemoSecurityGroup" ],
+            "Properties": {
+                "GroupId": { "Ref": "EcsDemoSecurityGroup" },
+                "CidrIp": "0.0.0.0/0",
+                "IpProtocol": "tcp",
+                "ToPort": 22,
+                "FromPort": 22
+            }
+        },
+        "EcsDemoSecGrpHTTPInbound": {
+            "Type": "AWS::EC2::SecurityGroupIngress",
+            "DependsOn": [ "EcsDemoSecurityGroup" ],
+            "Properties": {
+                "GroupId": { "Ref": "EcsDemoSecurityGroup" },
+                "CidrIp": "0.0.0.0/0",
+                "IpProtocol": "tcp",
+                "ToPort": 80,
+                "FromPort": 80
+            }
+        },
+        "EcsDemoSecGrpMySQLInbound": {
+            "Type": "AWS::EC2::SecurityGroupIngress",
+            "DependsOn": [ "EcsDemoSecurityGroup" ],
+            "Properties": {
+                "GroupId": { "Ref": "EcsDemoSecurityGroup" },
+                "SourceSecurityGroupId": { "Ref": "EcsDemoSecurityGroup" },
+                "IpProtocol": "tcp",
+                "ToPort": 3306,
+                "FromPort": 3306
+            }
+        },
+        "EcsDemoInternetGateway": {
+            "Type": "AWS::EC2::InternetGateway",
+            "Properties": {
+                "Tags": [
+                    { "Key": "tool", "Value": "cloudformation" },
+                    { "Key": "demo", "Value": "ecs" }
+                ]
+            }
+        },
+        "EcsDemoInternetGatewayAttachment": {
+            "Type": "AWS::EC2::VPCGatewayAttachment",
+            "Properties": {
+                "VpcId": { "Ref": "EcsDemoVpc" },
+                "InternetGatewayId": { "Ref": "EcsDemoInternetGateway" }
+            }
+        },
+        "EcsVpcRouteTable": {
+            "Type": "AWS::EC2::RouteTable",
+            "DependsOn": [ "EcsDemoVpc" ],
+            "Properties": {
+                "VpcId": { "Ref": "EcsDemoVpc" },
+                "Tags": [
+                    { "Key": "tool", "Value": "cloudformation" },
+                    { "Key": "demo", "Value": "ecs" }
+                ]
+            }
+        },
+        "EcsVpcDefaultRoute": {
+            "Type": "AWS::EC2::Route",
+            "DependsOn": [ "EcsVpcRouteTable", "EcsDemoInternetGatewayAttachment" ],
+            "Properties": {
+                "RouteTableId": { "Ref": "EcsVpcRouteTable" },
+                "DestinationCidrBlock": "0.0.0.0/0",
+                "GatewayId": { "Ref": "EcsDemoInternetGateway" }
+            }
+        },
+        "EcsVpcRouteTableAssociation": {
+            "Type": "AWS::EC2::SubnetRouteTableAssociation",
+            "DependsOn": [ "EcsVpcRouteTable" ],
+            "Properties": {
+                "SubnetId": { "Ref": "EcsDemoSubnet" },
+                "RouteTableId": { "Ref": "EcsVpcRouteTable" }
+            }
+        },
+        "DemoCluster": {
+            "Type": "AWS::ECS::Cluster",
+            "Properties": {
+                "ClusterName": "democluster"
+            }
+        },
+        "ContainerInstance1": {
+            "Type": "AWS::EC2::Instance",
+            "Properties": {
+                "IamInstanceProfile": "ecsInstanceRole",
+                "ImageId": { "Ref": "AmazonMachineImageId" },
+                "InstanceType": { "Ref": "InstanceType" },
+                "KeyName": { "Ref": "KeyName" },
+                "SecurityGroupIds": [ { "Ref": "EcsDemoSecurityGroup" } ],
+                "SubnetId": { "Ref": "EcsDemoSubnet" },
+                "Tags": [
+                    { "Key": "tool", "Value": "cloudformation" },
+                    { "Key": "demo", "Value": "ecs" }
+                ],
+                "UserData": {
+                    "Fn::Base64": {
+                        "Fn::Join": [
+                            "\n",
+                            [
+                                "#!/bin/bash",
+                                "echo ECS_CLUSTER=democluster >> /etc/ecs/ecs.config"
+                            ]
+                        ]
+                    }
+                }
+            }
+        },
+        "ContainerInstance2": {
+            "Type": "AWS::EC2::Instance",
+            "Properties": {
+                "IamInstanceProfile": "ecsInstanceRole",
+                "ImageId": { "Ref": "AmazonMachineImageId" },
+                "InstanceType": { "Ref": "InstanceType" },
+                "KeyName": { "Ref": "KeyName" },
+                "SecurityGroupIds": [ { "Ref": "EcsDemoSecurityGroup" } ],
+                "SubnetId": { "Ref": "EcsDemoSubnet" },
+                "Tags": [
+                    { "Key": "tool", "Value": "cloudformation" },
+                    { "Key": "demo", "Value": "ecs" }
+                ],
+                "UserData": {
+                    "Fn::Base64": {
+                        "Fn::Join": [
+                            "\n",
+                            [
+                                "#!/bin/bash",
+                                "echo ECS_CLUSTER=democluster >> /etc/ecs/ecs.config"
+                            ]
+                        ]
+                    }
+                }
+            }
+        },
+        "ContainerInstance3": {
+            "Type": "AWS::EC2::Instance",
+            "Properties": {
+                "IamInstanceProfile": "ecsInstanceRole",
+                "ImageId": { "Ref": "AmazonMachineImageId" },
+                "InstanceType": { "Ref": "InstanceType" },
+                "KeyName": { "Ref": "KeyName" },
+                "SecurityGroupIds": [ { "Ref": "EcsDemoSecurityGroup" } ],
+                "SubnetId": { "Ref": "EcsDemoSubnet" },
+                "Tags": [
+                    { "Key": "tool", "Value": "cloudformation" },
+                    { "Key": "demo", "Value": "ecs" }
+                ],
+                "UserData": {
+                    "Fn::Base64": {
+                        "Fn::Join": [
+                            "\n",
+                            [
+                                "#!/bin/bash",
+                                "echo ECS_CLUSTER=democluster >> /etc/ecs/ecs.config"
+                            ]
+                        ]
+                    }
+                }
+            }
+        }
+    }
+}
