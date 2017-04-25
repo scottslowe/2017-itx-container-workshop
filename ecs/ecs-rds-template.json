@@ -34,19 +34,36 @@
             "Type": "AWS::EC2::VPC",
             "Properties": {
                 "CidrBlock": "10.0.0.0/16",
+                "EnableDnsSupport": "true",
+                "EnableDnsHostnames": "true",
                 "Tags": [
                     { "Key": "tool", "Value": "cloudformation" },
                     { "Key": "demo", "Value": "ecs" }
                 ]
             }
         },
-        "EcsDemoSubnet": {
+        "EcsDemoSubnetA": {
             "Type": "AWS::EC2::Subnet",
             "DependsOn": [ "EcsDemoVpc" ],
             "Properties": {
+                "AvailabilityZone": "us-west-2a",
                 "VpcId": { "Ref": "EcsDemoVpc" },
                 "MapPublicIpOnLaunch": "true",
                 "CidrBlock": "10.0.1.0/24",
+                "Tags": [
+                    { "Key": "tool", "Value": "cloudformation" },
+                    { "Key": "demo", "Value": "ecs" }
+                ]
+            }
+        },
+        "EcsDemoSubnetB": {
+            "Type": "AWS::EC2::Subnet",
+            "DependsOn": [ "EcsDemoVpc" ],
+            "Properties": {
+                "AvailabilityZone": "us-west-2b",
+                "VpcId": { "Ref": "EcsDemoVpc" },
+                "MapPublicIpOnLaunch": "true",
+                "CidrBlock": "10.0.2.0/24",
                 "Tags": [
                     { "Key": "tool", "Value": "cloudformation" },
                     { "Key": "demo", "Value": "ecs" }
@@ -83,8 +100,8 @@
                 "GroupId": { "Ref": "EcsDemoSecurityGroup" },
                 "CidrIp": "0.0.0.0/0",
                 "IpProtocol": "tcp",
-                "ToPort": 80,
-                "FromPort": 80
+                "ToPort": 8080,
+                "FromPort": 8080
             }
         },
         "EcsDemoSecGrpMySQLInbound": {
@@ -114,7 +131,7 @@
                 "InternetGatewayId": { "Ref": "EcsDemoInternetGateway" }
             }
         },
-        "EcsVpcRouteTable": {
+        "EcsVpcRouteTableA": {
             "Type": "AWS::EC2::RouteTable",
             "DependsOn": [ "EcsDemoVpc" ],
             "Properties": {
@@ -125,21 +142,49 @@
                 ]
             }
         },
-        "EcsVpcDefaultRoute": {
+        "EcsVpcDefaultRouteA": {
             "Type": "AWS::EC2::Route",
-            "DependsOn": [ "EcsVpcRouteTable", "EcsDemoInternetGatewayAttachment" ],
+            "DependsOn": [ "EcsVpcRouteTableA", "EcsDemoInternetGatewayAttachment" ],
             "Properties": {
-                "RouteTableId": { "Ref": "EcsVpcRouteTable" },
+                "RouteTableId": { "Ref": "EcsVpcRouteTableA" },
                 "DestinationCidrBlock": "0.0.0.0/0",
                 "GatewayId": { "Ref": "EcsDemoInternetGateway" }
             }
         },
-        "EcsVpcRouteTableAssociation": {
+        "EcsVpcRouteTableAssociationA": {
             "Type": "AWS::EC2::SubnetRouteTableAssociation",
-            "DependsOn": [ "EcsVpcRouteTable" ],
+            "DependsOn": [ "EcsVpcRouteTableA" ],
             "Properties": {
-                "SubnetId": { "Ref": "EcsDemoSubnet" },
-                "RouteTableId": { "Ref": "EcsVpcRouteTable" }
+                "SubnetId": { "Ref": "EcsDemoSubnetA" },
+                "RouteTableId": { "Ref": "EcsVpcRouteTableA" }
+            }
+        },
+        "EcsVpcRouteTableB": {
+            "Type": "AWS::EC2::RouteTable",
+            "DependsOn": [ "EcsDemoVpc" ],
+            "Properties": {
+                "VpcId": { "Ref": "EcsDemoVpc" },
+                "Tags": [
+                    { "Key": "tool", "Value": "cloudformation" },
+                    { "Key": "demo", "Value": "ecs" }
+                ]
+            }
+        },
+        "EcsVpcDefaultRouteB": {
+            "Type": "AWS::EC2::Route",
+            "DependsOn": [ "EcsVpcRouteTableB", "EcsDemoInternetGatewayAttachment" ],
+            "Properties": {
+                "RouteTableId": { "Ref": "EcsVpcRouteTableB" },
+                "DestinationCidrBlock": "0.0.0.0/0",
+                "GatewayId": { "Ref": "EcsDemoInternetGateway" }
+            }
+        },
+        "EcsVpcRouteTableAssociationB": {
+            "Type": "AWS::EC2::SubnetRouteTableAssociation",
+            "DependsOn": [ "EcsVpcRouteTableB" ],
+            "Properties": {
+                "SubnetId": { "Ref": "EcsDemoSubnetB" },
+                "RouteTableId": { "Ref": "EcsVpcRouteTableB" }
             }
         },
         "DemoCluster": {
@@ -156,7 +201,7 @@
                 "InstanceType": { "Ref": "InstanceType" },
                 "KeyName": { "Ref": "KeyName" },
                 "SecurityGroupIds": [ { "Ref": "EcsDemoSecurityGroup" } ],
-                "SubnetId": { "Ref": "EcsDemoSubnet" },
+                "SubnetId": { "Ref": "EcsDemoSubnetA" },
                 "Tags": [
                     { "Key": "tool", "Value": "cloudformation" },
                     { "Key": "demo", "Value": "ecs" }
@@ -182,7 +227,7 @@
                 "InstanceType": { "Ref": "InstanceType" },
                 "KeyName": { "Ref": "KeyName" },
                 "SecurityGroupIds": [ { "Ref": "EcsDemoSecurityGroup" } ],
-                "SubnetId": { "Ref": "EcsDemoSubnet" },
+                "SubnetId": { "Ref": "EcsDemoSubnetA" },
                 "Tags": [
                     { "Key": "tool", "Value": "cloudformation" },
                     { "Key": "demo", "Value": "ecs" }
@@ -208,7 +253,7 @@
                 "InstanceType": { "Ref": "InstanceType" },
                 "KeyName": { "Ref": "KeyName" },
                 "SecurityGroupIds": [ { "Ref": "EcsDemoSecurityGroup" } ],
-                "SubnetId": { "Ref": "EcsDemoSubnet" },
+                "SubnetId": { "Ref": "EcsDemoSubnetA" },
                 "Tags": [
                     { "Key": "tool", "Value": "cloudformation" },
                     { "Key": "demo", "Value": "ecs" }
@@ -224,6 +269,38 @@
                         ]
                     }
                 }
+            }
+        },
+        "EcsDemoDBSubnetGrp": {
+            "Type": "AWS::RDS::DBSubnetGroup",
+            "Properties": {
+                "DBSubnetGroupDescription": "Subnet group for RDS instance",
+                "SubnetIds": [ { "Ref": "EcsDemoSubnetA" }, { "Ref": "EcsDemoSubnetB" } ],
+                "Tags": [
+                    { "Key": "tool", "Value": "cloudformation" },
+                    { "Key": "demo", "Value": "ecs" }
+                ]
+            }
+        },
+        "EcsDemoDBInstance": {
+            "Type": "AWS::RDS::DBInstance",
+            "DependsOn": [ "EcsDemoInternetGatewayAttachment" ],
+            "Properties": {
+                "Engine": "MySQL",
+                "MasterUsername": "wp",
+                "MasterUserPassword": "changemetoo",
+                "AllocatedStorage": "5",
+                "DBInstanceClass": "db.t2.medium",
+                "DBInstanceIdentifier": "wordpressdb",
+                "DBSubnetGroupName": { "Ref": "EcsDemoDBSubnetGrp" },
+                "DBName": "wordpressdb",
+                "Port": "3306",
+                "PubliclyAccessible": "true",
+                "VPCSecurityGroups": [ { "Ref": "EcsDemoSecurityGroup"} ],
+                "Tags": [
+                    { "Key": "tool", "Value": "cloudformation" },
+                    { "Key": "demo", "Value": "ecs" }
+                ]
             }
         }
     }

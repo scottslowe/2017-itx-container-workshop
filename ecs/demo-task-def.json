@@ -17,7 +17,7 @@
             "environment": [
                 {
                     "name": "WORDPRESS_DB_HOST",
-                    "value": "wp-db-instance.cl5hqnfnxb6j.us-west-2.rds.amazonaws.com"
+                    "value": "wordpressdb.cl5hqnfnxb6j.us-west-2.rds.amazonaws.com"
                 },
                 {
                     "name": "WORDPRESS_DB_NAME",
