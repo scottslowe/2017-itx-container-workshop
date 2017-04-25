@@ -9,3 +9,4 @@
 *.tfstate.backup
 .terraform/
 known_hosts
+ssh.cfg
