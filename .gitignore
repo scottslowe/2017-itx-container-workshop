@@ -10,3 +10,4 @@
 .terraform/
 known_hosts
 ssh.cfg
+*.retry
