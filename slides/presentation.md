@@ -122,6 +122,15 @@ template: divider
 * Uses &ldquo;standard&rdquo; Docker concepts (containers, services, networks) and tools (like `docker-compose`)
 
 ---
+## Swarm on EC2: Technologies involved
+
+* Docker CE (Community Engine): container runtime and daemon
+* Swarm mode (part of Docker CE): orchestration layer
+* Amazon EC2: Compute instances on which containers will run
+* Terraform: IaaS orchestration tool for creating AWS infrastructure
+* Ansible: Automation/configuration management tool for configuring instances
+
+---
 ## Swarm on EC2: Pros & cons
 
 * **Pro:** Doesn&rsquo;t leverage any cloud-specific features
@@ -150,6 +159,14 @@ template: divider
 * This an example of leveraging a provider-supplied orchestration framework
 * ECS leverages EC2 instances w/ an ECS Agent installed
 * Key building blocks are task definitions, tasks (containers) and services (declarative deployments of containers)
+
+---
+## ECS: Technologies involved
+
+* Amazon EC2: Compute instances on which containers will run
+* Amazon RDS: Database-as-a-service (DBaaS) providing MySQL database for demo application
+* Amazon ECS: Container orchestration solution responsible for scheduling containers to execute on EC2 instances
+* CloudFormation: Orchestration tool to create AWS infrastructure/services
 
 ---
 ## ECS: Pros & cons
@@ -181,6 +198,15 @@ template: divider
 * Key Kubernetes building blocks are pods (workload units), services (exposed endpoints for groups of pods), and deployments (declarative definitions of pods)
 
 ---
+## Kubernetes on AWS: Technologies involved
+
+* Docker: Container runtime
+* Kubernetes: Container orchestration layer
+* Amazon EC2: Compute instances on which containers will run
+* Amazon ELB: Load-balancing for containers/services
+* Kops: Kubernetes-specific orchestration tool for turning up Kubernetes clusters
+
+---
 ## Kubernetes on AWS: Pros & cons
 
 * **Con:** User/consumer responsible for deploying and managing the orchestration framework
@@ -207,6 +233,14 @@ template: divider
 * A bit of a unique case
 * It&rsquo;s Kubernetes, but hosted on Google Cloud and managed by Google
 * Same provider-agnostic building blocks (because it&rsquo;s Kubernetes), but without the user/consumer needing to manage the framework
+
+---
+## GKE: Technologies involved
+
+* Google Compute Engine (GCE): Compute instances on which containers will run
+* GCE Load balancer: Providing load balancing for containers/services
+* GCE persistent disks: Persistent storage for containers
+* Google Container Engine (GKE): Hosted/managed Kubernetes orchestration layer
 
 ---
 ## GKE: Pros & cons
