@@ -9,7 +9,7 @@
         "KeyName": {
             "Type": "AWS::EC2::KeyPair::KeyName",
             "Description": "Enter the name of an existing EC2 keypair to use for SSH access",
-            "Default": "itx_rsa"
+            "Default": "KEYPAIR"
         },
         "InstanceType": {
             "Type": "String",
