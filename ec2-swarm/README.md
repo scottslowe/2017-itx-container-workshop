@@ -46,7 +46,7 @@ At this point you now have a working demo environment.
 
 ## Deploying the Demo Application
 
-1. Connect to the manager node using SSH with the command `ssh -F ssh.cfg ubuntu@<public IP of manager>`. You can determine the public IP of the manager node using the `ec2.py` inventory script, if necessary.
+1. Connect to the manager node using SSH with the command `ssh -i <Path to SSH Key file> ubuntu@<public IP of manager>`. You can determine the public IP of the manager node using the `ec2.py` inventory script, if necessary.
 
 2. While logged into the manager node, run `docker stack deploy --compose-file docker-stack.yml demo` to deploy the sample application.
 
