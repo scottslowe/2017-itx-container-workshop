@@ -30,8 +30,6 @@ This demo environment was tested on Fedora Linux, but it should work without any
 
 7. Edit `vars.tf` to specify the name of an AWS keypair to use. If you want to use a region other than "us-west-2", you'll also need to specify the name of the AWS region to use.
 
-8. Edit `ssh.cfg` and change the "IdentityFile" line to reflect the keypair specified in step 7 (the two entries should match).
-
 The demo environment is now ready to be created.
 
 ## Creating the Demo Environment
